@@ -337,7 +337,13 @@ CROSS JOIN LATERAL (
           'MATERIALIZED CTE computed once và stored tạm thời — tốt cho expensive aggregations. NOT MATERIALIZED inline như subquery. LATERAL cho phép CTE reference columns từ preceding table (tương tự correlated subquery).',
       },
     ],
-    relatedTerms: ['PostgreSQL', 'Query Optimization', 'Recursive Query', 'Subquery', 'Window Functions'],
+    relatedTerms: [
+      'PostgreSQL',
+      'Query Optimization',
+      'Recursive Query',
+      'Subquery',
+      'Window Functions',
+    ],
     tags: ['cte', 'recursive', 'postgresql', 'query'],
   },
   {

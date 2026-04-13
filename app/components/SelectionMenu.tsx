@@ -6,7 +6,7 @@ import { Card } from '@heroui/react'
 import { allTerms } from '@/glossary/terms'
 
 interface SelectionMenuProps {
-  onSelectTerm: (termId: string) => void
+  onSelectTerm?: (termId: string) => void
 }
 
 interface MenuPosition {
@@ -29,13 +29,15 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
     }
 
     const lowerQuery = query.toLowerCase()
-    const results = allTerms.filter((term) => {
-      return (
-        term.term.toLowerCase().includes(lowerQuery) ||
-        term.definition.toLowerCase().includes(lowerQuery) ||
-        term.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
-      )
-    }).slice(0, 5) // Limit to 5 results
+    const results = allTerms
+      .filter((term) => {
+        return (
+          term.term.toLowerCase().includes(lowerQuery) ||
+          term.definition.toLowerCase().includes(lowerQuery) ||
+          term.tags.some((tag: string) => tag.toLowerCase().includes(lowerQuery))
+        )
+      })
+      .slice(0, 5) // Limit to 5 results
 
     setSearchResults(results)
   }, [])
@@ -112,7 +114,7 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
   const handleSelectResult = (termId: string) => {
     setIsVisible(false)
     window.getSelection()?.removeAllRanges()
-    onSelectTerm(termId)
+    onSelectTerm?.(termId)
   }
 
   const handleClose = () => {
@@ -125,7 +127,7 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
   return (
     <div
       ref={menuRef}
-      className="fixed z-[9999] animate-in fade-in zoom-in-95 duration-150"
+      className="animate-in fade-in zoom-in-95 fixed z-[9999] duration-150"
       style={{
         left: position.x,
         top: position.y,
@@ -141,7 +143,7 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
             value={selectedText}
             onChange={handleSearchChange}
             placeholder="Tìm kiếm thuật ngữ..."
-            className="bg-transparent text-foreground placeholder:text-default-400 flex-1 border-none outline-none text-sm"
+            className="text-foreground placeholder:text-default-400 flex-1 border-none bg-transparent text-sm outline-none"
           />
           <button
             onClick={handleClose}
@@ -165,18 +167,14 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
                     <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
                       {term.category}
                     </span>
-                    <span className="font-medium text-sm">{term.term}</span>
+                    <span className="text-sm font-medium">{term.term}</span>
                   </div>
-                  <p className="text-default-500 mt-0.5 line-clamp-1 text-xs">
-                    {term.definition}
-                  </p>
+                  <p className="text-default-500 mt-0.5 line-clamp-1 text-xs">{term.definition}</p>
                 </button>
               ))}
             </div>
           ) : selectedText.trim() ? (
-            <div className="text-default-400 py-6 text-center text-sm">
-              Không tìm thấy kết quả
-            </div>
+            <div className="text-default-400 py-6 text-center text-sm">Không tìm thấy kết quả</div>
           ) : (
             <div className="text-default-400 py-6 text-center text-sm">
               Chọn text và click chuột phải để tìm kiếm

@@ -384,7 +384,7 @@ type UserPreview = Pick<User, 'id' | 'name'>;`,
     definition:
       'Type Inference là khả năng của TypeScript tự động suy luận kiểu dữ liệu của biến, return type của function, hay cấu trúc object mà không cần khai báo tường minh.',
     details:
-      '**Khi nào TypeScript infer \\`infer\\`:**\n1. Khởi tạo biến với giá trị\n2. Return type của function\n3. Default parameters\n4. Array/object literals\n5. Type predicates (return type của guard function)\n\n**Best practices:**\n- Để TypeScript infer khi có thể — code gọn hơn\n- Khai báo tường minh khi: public API, ambiguous types, generic functions phức tạp\n\n**Type Annotation vs Inference:**\n- Annotation: \\`let name: string = \'John\'\`\n- Inference: \\`let name = \'John\'\` (infer là string)',
+      "**Khi nào TypeScript infer \\`infer\\`:**\n1. Khởi tạo biến với giá trị\n2. Return type của function\n3. Default parameters\n4. Array/object literals\n5. Type predicates (return type của guard function)\n\n**Best practices:**\n- Để TypeScript infer khi có thể — code gọn hơn\n- Khai báo tường minh khi: public API, ambiguous types, generic functions phức tạp\n\n**Type Annotation vs Inference:**\n- Annotation: \\`let name: string = 'John'\`\n- Inference: \\`let name = 'John'\` (infer là string)",
     examples: [
       {
         title: 'Type Inference cơ bản',
@@ -860,7 +860,12 @@ type BooleanKeys = KeysOfType<Data, boolean>; // 'active'`,
           'Template literal types cho phép tạo strings với pattern cụ thể. Kết hợp với mapped types để tạo event systems hoặc utility types phức tạp.',
       },
     ],
-    relatedTerms: ['TypeScript Utility Types', 'TypeScript Interface', 'TypeScript Type', 'Conditional Types'],
+    relatedTerms: [
+      'TypeScript Utility Types',
+      'TypeScript Interface',
+      'TypeScript Type',
+      'Conditional Types',
+    ],
     tags: ['mapped-types', 'generics', 'transformation', 'typescript'],
   },
   {

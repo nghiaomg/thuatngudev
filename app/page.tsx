@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo } from 'react'
 import { Card } from '@heroui/react'
 import { BookMarked, Sparkles } from 'lucide-react'
 import { SearchFilter } from './components/SearchFilter'
@@ -11,34 +11,9 @@ import { allTerms } from '@/glossary/terms'
 export default function GlossaryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('General')
-  const [highlightedTermId, setHighlightedTermId] = useState<string | null>(null)
-  const termCardRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  const handleSelectTermFromMenu = (termId: string) => {
-    const term = allTerms.find((t) => t.id === termId)
-    if (term) {
-      // Set search to find the term
-      setSearchQuery(term.term)
-      setSelectedCategory(term.category)
-
-      // Scroll to and highlight the term card
-      setTimeout(() => {
-        const cardEl = termCardRefs.current[termId]
-        if (cardEl) {
-          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          setHighlightedTermId(termId)
-
-          // Remove highlight after 3 seconds
-          setTimeout(() => {
-            setHighlightedTermId(null)
-          }, 3000)
-        }
-      }, 100)
-    }
-  }
 
   const filteredGlossary = useMemo(() => {
-    return allTerms.filter((term) => {
+    let filtered = allTerms.filter((term) => {
       const matchesCategory = selectedCategory === 'General' || term.category === selectedCategory
 
       const searchLower = searchQuery.toLowerCase().trim()
@@ -51,6 +26,13 @@ export default function GlossaryPage() {
 
       return matchesCategory && matchesSearch
     })
+
+    // Sort alphabetically A -> Z
+    if (selectedCategory === 'General') {
+      filtered = filtered.sort((a, b) => a.term.localeCompare(b.term, 'vi'))
+    }
+
+    return filtered
   }, [searchQuery, selectedCategory])
 
   return (
@@ -97,15 +79,7 @@ export default function GlossaryPage() {
         {filteredGlossary.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {filteredGlossary.map((term) => (
-              <div
-                key={term.id}
-                ref={(el) => {
-                  termCardRefs.current[term.id] = el
-                }}
-                className={highlightedTermId === term.id ? 'ring-2 ring-primary rounded-xl' : ''}
-              >
-                <TermCard term={term} />
-              </div>
+              <TermCard key={term.id} term={term} />
             ))}
           </div>
         ) : (
@@ -139,7 +113,7 @@ export default function GlossaryPage() {
       </main>
 
       {/* Selection Menu - Right-click to search */}
-      <SelectionMenu onSelectTerm={handleSelectTermFromMenu} />
+      <SelectionMenu />
 
       {/* Footer */}
       <footer className="border-default-200 dark:border-default-800 mt-auto border-t py-8">

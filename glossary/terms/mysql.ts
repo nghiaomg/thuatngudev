@@ -320,7 +320,13 @@ EXPLAIN SELECT * FROM users ORDER BY created_at DESC LIMIT 10;
           'Composite index chỉ dùng được khi query dùng leftmost columns. ORDER BY không có index gây filesort. LIMIT với ORDER BY nên có index trùng.',
       },
     ],
-    relatedTerms: ['MySQL Index', 'Query Optimization', 'Execution Plan', 'B-Tree', 'MySQL Performance'],
+    relatedTerms: [
+      'MySQL Index',
+      'Query Optimization',
+      'Execution Plan',
+      'B-Tree',
+      'MySQL Performance',
+    ],
     tags: ['explain', 'performance', 'mysql', 'query-optimization'],
   },
   {
@@ -423,7 +429,13 @@ WHERE order_date BETWEEN '2024-01-01' AND '2024-06-30';
           'ALTER TABLE ADD PARTITION thêm partition mới. TRUNCATE PARTITION xóa rows cực nhanh. EXCHANGE PARTITION cho phép swap data với archive table.',
       },
     ],
-    relatedTerms: ['MySQL Index', 'MySQL EXPLAIN', 'Sharding', 'Partition Pruning', 'Table Optimization'],
+    relatedTerms: [
+      'MySQL Index',
+      'MySQL EXPLAIN',
+      'Sharding',
+      'Partition Pruning',
+      'Table Optimization',
+    ],
     tags: ['partitioning', 'performance', 'mysql', 'sharding', 'horizontal-scaling'],
   },
 ]
