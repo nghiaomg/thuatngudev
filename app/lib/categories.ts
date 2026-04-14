@@ -30,4 +30,5 @@ export const displayCategories = [
   'Backend',
   'Database',
   'Test',
+  'Security',
 ]

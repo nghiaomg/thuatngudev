@@ -1,6 +1,12 @@
 import type { GlossaryTerm } from '../types'
+import { authenticationTerms } from './security-authentication'
+import { encryptionTerms } from './security-encryption'
+import { webSecurityTerms } from './security-web-security'
+import { attacksTerms } from './security-attacks'
+import { bestPracticesTerms } from './security-best-practices'
 
-export const securityTerms: GlossaryTerm[] = [
+// Original terms (SQL Injection, XSS, TLS Handshake Overhead)
+const originalTerms: GlossaryTerm[] = [
   {
     id: 'security-1',
     term: 'SQL Injection',
@@ -317,4 +323,14 @@ socket.on('secure', () => {
     relatedTerms: ['HTTPS', 'Keep-alive', 'SSL', 'TLS 1.3', 'Security', 'Performance'],
     tags: ['tls', 'ssl', 'https', 'handshake', 'security', 'performance', 'networking'],
   },
+]
+
+// Export all security terms combined
+export const securityTerms: GlossaryTerm[] = [
+  ...originalTerms,
+  ...authenticationTerms,
+  ...encryptionTerms,
+  ...webSecurityTerms,
+  ...attacksTerms,
+  ...bestPracticesTerms,
 ]

@@ -1,41 +1,130 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Card } from '@heroui/react'
-import { BookMarked, Sparkles } from 'lucide-react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { Card, Spinner } from '@heroui/react'
+import { BookMarked, Sparkles, ChevronUp } from 'lucide-react'
 import { SearchFilter } from './components/SearchFilter'
 import { TermCard } from './components/TermCard'
 import { SelectionMenu } from './components/SelectionMenu'
 import { allTerms } from '@/glossary/terms'
 import { getCategoryGroup } from '@/app/lib/categories'
 
+const ITEMS_PER_PAGE = 20
+
 export default function GlossaryPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('General')
+  const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_PAGE)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const mainRef = useRef<HTMLElement>(null)
 
+  // Optimized filtering with debounce
   const filteredGlossary = useMemo(() => {
-    let filtered = allTerms.filter((term) => {
-      const termGroup = getCategoryGroup(term.category)
-      const matchesCategory = selectedCategory === 'General' || termGroup === selectedCategory
+    const searchLower = searchQuery.toLowerCase().trim()
+    const isGeneral = selectedCategory === 'General'
 
-      const searchLower = searchQuery.toLowerCase().trim()
-      const matchesSearch =
-        !searchLower ||
+    // Pre-compute search function
+    const matchesSearch = (term: typeof allTerms[0]) => {
+      if (!searchLower) return true
+      
+      return (
         term.term.toLowerCase().includes(searchLower) ||
         term.definition.toLowerCase().includes(searchLower) ||
-        term.tags.some((tag: string) => tag.toLowerCase().includes(searchLower)) ||
-        term.relatedTerms.some((related: string) => related.toLowerCase().includes(searchLower))
+        term.tags.some((tag) => tag.includes(searchLower)) ||
+        term.relatedTerms.some((related) => related.includes(searchLower))
+      )
+    }
 
-      return matchesCategory && matchesSearch
-    })
+    let filtered: typeof allTerms
 
-    // Sort alphabetically A -> Z
-    if (selectedCategory === 'General') {
-      filtered = filtered.sort((a, b) => a.term.localeCompare(b.term, 'vi'))
+    if (isGeneral && !searchLower) {
+      // No filtering needed - just sort
+      filtered = [...allTerms].sort((a, b) => a.term.localeCompare(b.term, 'vi'))
+    } else {
+      filtered = allTerms.filter((term) => {
+        const termGroup = getCategoryGroup(term.category)
+        const matchesCategory = isGeneral || termGroup === selectedCategory
+        return matchesCategory && matchesSearch(term)
+      })
+
+      // Sort only when in General category
+      if (isGeneral) {
+        filtered.sort((a, b) => a.term.localeCompare(b.term, 'vi'))
+      }
     }
 
     return filtered
   }, [searchQuery, selectedCategory])
+
+  // Paginated terms
+  const visibleTerms = useMemo(() => {
+    return filteredGlossary.slice(0, displayedCount)
+  }, [filteredGlossary, displayedCount])
+
+  // Check if there are more terms to load
+  const hasMore = displayedCount < filteredGlossary.length
+
+  // Scroll to top button visibility
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500)
+      
+      // Detect if user is scrolling (for lazy loading)
+      if (!isScrolling) {
+        setIsScrolling(true)
+        setTimeout(() => setIsScrolling(false), 150)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isScrolling])
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setDisplayedCount(ITEMS_PER_PAGE)
+  }, [searchQuery, selectedCategory])
+
+  // Load more terms
+  const loadMore = () => {
+    setDisplayedCount((prev) => Math.min(prev + ITEMS_PER_PAGE, filteredGlossary.length))
+  }
+
+  // Intersection Observer for infinite scroll
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isScrolling) {
+          loadMore()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+
+    if (loadMoreRef.current) {
+      observerRef.current.observe(loadMoreRef.current)
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [hasMore, isScrolling, displayedCount])
+
+  // Scroll to top
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -57,7 +146,7 @@ export default function GlossaryPage() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto w-full max-w-7xl space-y-8 px-4 py-8">
+      <main ref={mainRef} className="mx-auto w-full max-w-7xl space-y-8 px-4 py-8">
         {/* Search and Filter */}
         <section>
           <SearchFilter
@@ -71,7 +160,7 @@ export default function GlossaryPage() {
         {/* Results count */}
         <div className="flex items-center justify-between">
           <p className="text-default-500 text-sm">
-            Tìm thấy{' '}
+            Có{' '}
             <span className="text-foreground font-semibold">{filteredGlossary.length}</span> thuật
             ngữ
           </p>
@@ -79,11 +168,33 @@ export default function GlossaryPage() {
 
         {/* Terms Grid */}
         {filteredGlossary.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {filteredGlossary.map((term) => (
-              <TermCard key={term.id} term={term} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {visibleTerms.map((term) => (
+                <TermCard key={term.id} term={term} />
+              ))}
+            </div>
+
+            {/* Load More Trigger */}
+            {hasMore && (
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                <Spinner size="md" />
+              </div>
+            )}
+
+            {/* Manual Load More Button */}
+            {hasMore && !isScrolling && (
+              <div className="flex justify-center">
+                <button
+                  onClick={loadMore}
+                  className="bg-primary hover:bg-primary/90 rounded-lg px-6 py-3 text-sm font-medium text-white transition-all active:scale-95"
+                >
+                  Tải thêm {Math.min(ITEMS_PER_PAGE, filteredGlossary.length - displayedCount)}{' '}
+                  thuật ngữ
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <Card className="mx-auto w-full max-w-2xl">
             <Card.Content className="py-12">
@@ -113,6 +224,17 @@ export default function GlossaryPage() {
           </Card>
         )}
       </main>
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="border-default-200 dark:border-default-800 bg-background/90 hover:bg-primary hover:text-white fixed bottom-8 right-8 rounded-full border p-3 shadow-lg backdrop-blur-sm transition-all duration-300"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp size={24} />
+        </button>
+      )}
 
       {/* Selection Menu - Right-click to search */}
       <SelectionMenu />

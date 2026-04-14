@@ -1,4 +1,8 @@
 import type { GlossaryTerm } from '../../types'
+import { memoizationTerms } from './performance-memoization'
+import { codeSplitTerms } from './performance-code-splitting'
+import { renderingOptimizationTerms } from './performance-rendering'
+import { bundleOptimizationTerms } from './performance-bundle'
 
 export const performanceTerms: GlossaryTerm[] = [
   {
@@ -117,4 +121,8 @@ const CustomComponent = React.memo(
     relatedTerms: ['Reconciliation', 'React Fiber', 'ShouldComponentUpdate', 'Memoization', 'DOM'],
     tags: ['virtual-dom', 'performance', 'reconciliation', 'rendering', 'dom'],
   },
+  ...memoizationTerms,
+  ...codeSplitTerms,
+  ...renderingOptimizationTerms,
+  ...bundleOptimizationTerms,
 ]
