@@ -1,20 +1,19 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Search, X } from 'lucide-react'
 import { Card } from '@heroui/react'
 import { allTerms } from '@/glossary/terms'
-
-interface SelectionMenuProps {
-  onSelectTerm?: (termId: string) => void
-}
+import { getCategoryGroup } from '@/app/lib/categories'
 
 interface MenuPosition {
   x: number
   y: number
 }
 
-export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
+export function SelectionMenu() {
+  const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
   const [position, setPosition] = useState<MenuPosition>({ x: 0, y: 0 })
   const [selectedText, setSelectedText] = useState('')
@@ -111,10 +110,10 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
     searchTerms(value)
   }
 
-  const handleSelectResult = (termId: string) => {
+  const handleSelectResult = (term: typeof searchResults[0]) => {
     setIsVisible(false)
     window.getSelection()?.removeAllRanges()
-    onSelectTerm?.(termId)
+    router.push(`/terms/${term.slug}`)
   }
 
   const handleClose = () => {
@@ -160,12 +159,12 @@ export function SelectionMenu({ onSelectTerm }: SelectionMenuProps) {
               {searchResults.map((term) => (
                 <button
                   key={term.id}
-                  onClick={() => handleSelectResult(term.id)}
+                  onClick={() => handleSelectResult(term)}
                   className="text-foreground hover:bg-primary/10 w-full cursor-pointer px-3 py-2 text-left transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
-                      {term.category}
+                      {getCategoryGroup(term.category)}
                     </span>
                     <span className="text-sm font-medium">{term.term}</span>
                   </div>

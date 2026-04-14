@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(c:\\WorkSpace\\GitHub-Projects\\ClaudeUsage\\src/**)"
+    ]
+  }
+}

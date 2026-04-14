@@ -7,6 +7,7 @@ import { SearchFilter } from './components/SearchFilter'
 import { TermCard } from './components/TermCard'
 import { SelectionMenu } from './components/SelectionMenu'
 import { allTerms } from '@/glossary/terms'
+import { getCategoryGroup } from '@/app/lib/categories'
 
 export default function GlossaryPage() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -14,7 +15,8 @@ export default function GlossaryPage() {
 
   const filteredGlossary = useMemo(() => {
     let filtered = allTerms.filter((term) => {
-      const matchesCategory = selectedCategory === 'General' || term.category === selectedCategory
+      const termGroup = getCategoryGroup(term.category)
+      const matchesCategory = selectedCategory === 'General' || termGroup === selectedCategory
 
       const searchLower = searchQuery.toLowerCase().trim()
       const matchesSearch =

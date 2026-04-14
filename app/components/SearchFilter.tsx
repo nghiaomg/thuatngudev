@@ -3,26 +3,17 @@
 import { Search } from 'lucide-react'
 import { Button, Chip } from '@heroui/react'
 import { allTerms } from '@/glossary/terms'
+import { categoryGroupMap, getCategoryGroup, displayCategories } from '@/app/lib/categories'
 
-// Define category tags mapping
-const categoryTags: Record<string, string[]> = {
-  TypeScript: ['generics', 'type-safety', 'interfaces', 'types', 'decorators'],
-  React: ['hooks', 'state', 'components', 'jsx', 'props'],
-  'Node.js': ['async', 'npm', 'modules', 'buffers', 'streams'],
-  Backend: ['api', 'database', 'authentication', 'caching', 'deployment'],
-  General: ['oop', 'patterns', 'algorithms', 'architecture'],
-}
-
-// Categories list (General is handled separately as the default "all" category)
-const categories = ['TypeScript', 'React', 'Node.js', 'Backend']
-
-// Extract unique tags from terms of a specific category
-function getCategoryTags(category: string): string[] {
-  const categoryTerms = allTerms.filter((term) => term.category === category)
-  const allTags = categoryTerms.flatMap((term) => term.tags)
-  // Return unique tags, sorted alphabetically
+// Extract unique tags from terms of a specific category group
+function getCategoryGroupTags(groupName: string): string[] {
+  const groupTerms = allTerms.filter((term) => getCategoryGroup(term.category) === groupName)
+  const allTags = groupTerms.flatMap((term) => term.tags)
   return [...new Set(allTags)].sort()
 }
+
+// Define category tags mapping for General (predefined)
+const generalTags = ['oop', 'patterns', 'algorithms', 'architecture']
 
 interface SearchFilterProps {
   searchQuery: string
@@ -37,9 +28,9 @@ export function SearchFilter({
   selectedCategory,
   onCategoryChange,
 }: SearchFilterProps) {
-  // Get tags for selected category (excluding "General" which uses predefined tags)
+  // Get tags for selected category group
   const displayTags =
-    selectedCategory === 'General' ? categoryTags.General : getCategoryTags(selectedCategory)
+    selectedCategory === 'General' ? generalTags : getCategoryGroupTags(selectedCategory)
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
@@ -59,15 +50,7 @@ export function SearchFilter({
 
       {/* Category Pills */}
       <div className="flex flex-wrap justify-center gap-2">
-        <Button
-          onPress={() => onCategoryChange('General')}
-          variant={selectedCategory === 'General' ? 'primary' : 'outline'}
-          size="sm"
-          className="font-medium"
-        >
-          General
-        </Button>
-        {categories.map((category) => (
+        {displayCategories.map((category) => (
           <Button
             key={category}
             onPress={() => onCategoryChange(category)}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
+import { SelectionMenu } from './components/SelectionMenu'
 import './globals.css'
 
 const geistSans = Geist({
@@ -32,6 +33,7 @@ export default function RootLayout({
       <body className="flex min-h-screen flex-col antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <SelectionMenu />
         </ThemeProvider>
       </body>
     </html>

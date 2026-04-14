@@ -9,6 +9,9 @@ import { postgresqlTerms } from './postgresql'
 import { securityTerms } from './security'
 import { loggingTerms } from './logging'
 import { mongodbTerms } from './mongodb'
+import { authenticationTerms } from './authentication'
+import { infrastructureTerms } from './infrastructure'
+import { testTerms } from './test'
 
 export {
   typescriptTerms,
@@ -21,6 +24,9 @@ export {
   securityTerms,
   loggingTerms,
   mongodbTerms,
+  authenticationTerms,
+  infrastructureTerms,
+  testTerms,
 }
 
 // Export all terms combined
@@ -35,4 +41,7 @@ export const allTerms: GlossaryTerm[] = [
   ...securityTerms,
   ...loggingTerms,
   ...mongodbTerms,
+  ...authenticationTerms,
+  ...infrastructureTerms,
+  ...testTerms,
 ]
